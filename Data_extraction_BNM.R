@@ -7,7 +7,7 @@ rm(list=ls())
 
 ### install if necessary and then load the libraries you need
 
-j <- c("rstudioapi","plyr","rnrfa","rgdal","blighty","dplyr","raster","RColorBrewer","lme4","ggplot2","lubridate","mgcv","gridExtra","reshape2")
+j <- c("rstudioapi","plyr","rnrfa","rgdal","blighty","dplyr","raster","RColorBrewer","lme4","ggplot2","lubridate","mgcv","gridExtra","reshape2","effects")
 
 new.packages <- j[!(j %in% installed.packages()[,"Package"])]
 if(length(new.packages)) install.packages(new.packages)
@@ -3181,10 +3181,10 @@ set.mine.res <- set.British.Isles$Object[c(1:3,16:58,77:81)]
 svg("Results/Plots/Exemplars/SmallBlue/Distribution.svg",width = 12, height = 12,pointsize=12, bg = "white")
 
 blighty(place="set.mine.res", set=FALSE)
-points((5+sb.1995.hecs$EASTING/1000),(5+sb.1995.hecs$NORTHING/1000),pch=16,col="red")
-points((5+sb.2014.hecs$EASTING/1000),(5+sb.2014.hecs$NORTHING/1000),pch=1)
+points((5+sb.1995.hecs$EASTING/1000),(5+sb.1995.hecs$NORTHING/1000),pch=16,col="goldenrod")
+points((5+sb.2014.hecs$EASTING/1000),(5+sb.2014.hecs$NORTHING/1000),pch=16, col="royalblue")
 points((5+sb.both.hecs$EASTING/1000),(5+sb.both.hecs$NORTHING/1000),pch=16,col="black")
-abline(h=(margins.heavy.sb[which(margins.heavy.sb$YEAR==1995),4]/1000), col="red", lwd = 8)
+abline(h=(margins.heavy.sb[which(margins.heavy.sb$YEAR==1995),4]/1000), col="goldenrod", lwd = 8)
 abline(h=(margins.heavy.sb[which(margins.heavy.sb$YEAR==2014),4]/1000), col="black", lty = 2, lwd = 8)
 
 dev.off()
@@ -3198,9 +3198,18 @@ test.ab.sb <- lmer(log(MEAN.ABUND) ~ YEAR + (1|SITE), data = sb.abund)
 coef.ab.sb <- fixef(test.ab.sb)
 
 
+# we want confidence intervals around the line, so we need to predict data for these
+
+errors.ab.sb <- data.frame(effect(c("YEAR"), test.ab.sb, xlevels=20))
+
+
+
 g.ab.sb <- ggplot(sb.abund)+
-  geom_point(aes(x = YEAR, y = log(MEAN.ABUND)), colour = "grey60")+
-  geom_line(aes(x = YEAR, y = log(MEAN.ABUND), group = SITE), colour = "grey80")+
+  geom_ribbon(data = errors.ab.sb,
+              aes(x = YEAR, ymin = lower, ymax = upper),
+              alpha = 0.5, fill = "grey80")+
+  geom_point(aes(x = YEAR, y = log(MEAN.ABUND)), colour = "grey50")+
+  geom_line(aes(x = YEAR, y = log(MEAN.ABUND), group = SITE), colour = "grey70")+
   geom_abline(intercept = coef.ab.sb[1], slope = coef.ab.sb[2], size = 1, linetype = "dashed")+
   theme_bw()+
   ylim(-2,4.5)+
@@ -3217,9 +3226,15 @@ test.phen.sb <- lmer(PEAKDAY ~ YEAR + (1|SITE), data = sb.abund)
 coef.phen.sb <- fixef(test.phen.sb)
 
 
+errors.phen.sb <- data.frame(effect(c("YEAR"), test.phen.sb, xlevels=20))
+
+
 g.phen.sb <- ggplot(sb.abund)+
-  geom_point(aes(x = YEAR, y = PEAKDAY), colour = "grey60")+
-  geom_line(aes(x = YEAR, y = PEAKDAY, group = SITE), colour = "grey80")+
+  geom_ribbon(data = errors.phen.sb,
+              aes(x = YEAR, ymin = lower, ymax = upper),
+              alpha = 0.5, fill = "grey80")+
+  geom_point(aes(x = YEAR, y = PEAKDAY), colour = "grey50")+
+  geom_line(aes(x = YEAR, y = PEAKDAY, group = SITE), colour = "grey70")+
   geom_abline(intercept = coef.phen.sb[1], slope = coef.phen.sb[2], size = 1, linetype = "dashed")+
   theme_bw()+
   ylim(125,250)+
@@ -3304,10 +3319,10 @@ ssb.both.hecs <- merge(ssb.1995.hecs[,c(1:3,8:9)],ssb.2014.hecs[,c(1:3,8:9)])
 svg("Results/Plots/Exemplars/SilverStuddedBlue/Distribution.svg",width = 12, height = 12,pointsize=12, bg = "white")
 
 blighty(place="set.mine.res", set=FALSE)
-points((5+ssb.1995.hecs$EASTING/1000),(5+ssb.1995.hecs$NORTHING/1000),pch=16,col="red")
-points((5+ssb.2014.hecs$EASTING/1000),(5+ssb.2014.hecs$NORTHING/1000),pch=1)
+points((5+ssb.1995.hecs$EASTING/1000),(5+ssb.1995.hecs$NORTHING/1000),pch=16,col="goldenrod")
+points((5+ssb.2014.hecs$EASTING/1000),(5+ssb.2014.hecs$NORTHING/1000),pch=16,col="royalblue")
 points((5+ssb.both.hecs$EASTING/1000),(5+ssb.both.hecs$NORTHING/1000),pch=16,col="black")
-abline(h=(margins.heavy.ssb[which(margins.heavy.ssb$YEAR==1995),4]/1000), col="red", lwd = 8)
+abline(h=(margins.heavy.ssb[which(margins.heavy.ssb$YEAR==1995),4]/1000), col="goldenrod", lwd = 8)
 abline(h=(margins.heavy.ssb[which(margins.heavy.ssb$YEAR==2014),4]/1000), col="black", lty = 2, lwd = 8)
 
 dev.off()
@@ -3320,10 +3335,15 @@ test.ab.ssb <- lmer(log(MEAN.ABUND) ~ YEAR + (1|SITE), data = ssb.abund)
 
 coef.ab.ssb <- fixef(test.ab.ssb)
 
+errors.ab.ssb <- data.frame(effect(c("YEAR"), test.ab.ssb, xlevels=20))
+
 
 g.ab.ssb <- ggplot(ssb.abund)+
-  geom_point(aes(x = YEAR, y = log(MEAN.ABUND)), colour = "grey60")+
-  geom_line(aes(x = YEAR, y = log(MEAN.ABUND), group = SITE), colour = "grey80")+
+  geom_ribbon(data = errors.ab.ssb,
+              aes(x = YEAR, ymin = lower, ymax = upper),
+              alpha = 0.5, fill = "grey80")+
+  geom_point(aes(x = YEAR, y = log(MEAN.ABUND)), colour = "grey50")+
+  geom_line(aes(x = YEAR, y = log(MEAN.ABUND), group = SITE), colour = "grey70")+
   geom_abline(intercept = coef.ab.ssb[1], slope = coef.ab.ssb[2], size = 1, linetype = "dashed")+
   theme_bw()+
   ylim(-2,4.5)+
@@ -3339,10 +3359,15 @@ test.phen.ssb <- lmer(PEAKDAY ~ YEAR + (1|SITE), data = ssb.abund)
 
 coef.phen.ssb <- fixef(test.phen.ssb)
 
+errors.phen.ssb <- data.frame(effect(c("YEAR"), test.phen.ssb, xlevels=20))
+
 
 g.phen.ssb <- ggplot(ssb.abund)+
-  geom_point(aes(x = YEAR, y = PEAKDAY), colour = "grey60")+
-  geom_line(aes(x = YEAR, y = PEAKDAY, group = SITE), colour = "grey80")+
+  geom_ribbon(data = errors.phen.ssb,
+              aes(x = YEAR, ymin = lower, ymax = upper),
+              alpha = 0.5, fill = "grey80")+
+  geom_point(aes(x = YEAR, y = PEAKDAY), colour = "grey50")+
+  geom_line(aes(x = YEAR, y = PEAKDAY, group = SITE), colour = "grey70")+
   geom_abline(intercept = coef.phen.ssb[1], slope = coef.phen.ssb[2], size = 1, linetype = "dashed")+
   theme_bw()+
   ylim(125,250)+
@@ -3475,10 +3500,207 @@ for (x in levels(droplevels(BMS_popns$COMMON_NAME))){
 
 
 
+### post reviewers' comments ####
+
+# one of the reviewers wants us to do a supplementary analysis using the full length of the available butterfly data
+# i.e. for every population, rather than restricting to 1995-2014, calculate the trends from start to finish of recording
+
+
+# we still have a list of all the populations to use, in 'popns.to.use'
+
+# so now we return to the completely raw data, with all years included, to extract the relevant data
+
+
+# now repeat this for the raw data, which is in BMS_raw
+
+BMS_raw$POPULATION <- paste(BMS_raw$COMMON_NAME, BMS_raw$SITE, sep=".")
+
+# and use this to extract only the data from good populations
+
+BMS_allyears <- BMS_raw[which(BMS_raw$POPULATION %in% popns.to.use$POPULATION), ]
+
+summary(BMS_allyears)
+
+## now extract abundance and phenology trends for each of these populations, as before
+
+BMS_allyears$MEAN.ABUND <- BMS_allyears$COUNT/BMS_allyears$RECS
+
+
+# let's generate some summary stats about how many BMS populations and how many population*year records go into the final dataset
+# first, the overall stat of how many sites in total are included (should be 110 as before)
+length(levels(droplevels(BMS_allyears$SITE)))
+
+# and now some species-level stats
+
+summary.stats.ay <- data.frame(SCI_NAME = factor(),
+                            COMMON_NAME = factor(),
+                            SITES = numeric(),
+                            SITE.YEARS = numeric(),
+                            RECORDS = numeric(),
+                            INDIVIDUALS = numeric(),
+                            FIRST.YEAR = numeric(),
+                            LAST.YEAR = numeric(),
+                            DURATION = numeric())
+
+for (x in BMS.butterflies){
+  spec <- BMS_allyears[which(BMS_allyears$COMMON_NAME==x), ]
+  SCI_NAME <- as.character(spec[[1,3]])
+  spec$YEARS <- 1
+  by.year <- ddply(spec, .(SCI_NAME,COMMON_NAME,SITE), summarise,
+                   SITE.YEARS = sum(YEARS),
+                   RECORDS = sum(OBS),
+                   INDIVIDUALS = sum(COUNT),
+                   FIRST.YEAR = min(YEAR),
+                   LAST.YEAR = max(YEAR))
+  SITES <- nrow(by.year)
+  SITE.YEARS <- sum(by.year$SITE.YEARS)
+  RECORDS <- sum(by.year$RECORDS)
+  INDIVIDUALS <- sum(by.year$INDIVIDUALS)
+  FIRST.YEAR <- min(by.year$FIRST.YEAR)
+  LAST.YEAR <- max(by.year$LAST.YEAR)
+  DURATION <- LAST.YEAR - FIRST.YEAR
+  
+  out <- data.frame(cbind(SCI_NAME,x,SITES,SITE.YEARS,RECORDS,INDIVIDUALS,FIRST.YEAR,LAST.YEAR,DURATION))
+  summary.stats.ay <- rbind(summary.stats.ay,out)
+}
+
+colnames(summary.stats.ay) <- c("SCI_NAME","COMMON_NAME","SITES","SITE.YEARS","RECORDS","INDIVIDUALS","FIRST.YEAR","LAST.YEAR","DURATION")
+
+summary.stats.ay$SITES <- as.numeric(as.character(summary.stats.ay$SITES))
+summary.stats.ay$SITE.YEARS <- as.numeric(as.character(summary.stats.ay$SITE.YEARS))
+summary.stats.ay$RECORDS <- as.numeric(as.character(summary.stats.ay$RECORDS))
+summary.stats.ay$INDIVIDUALS <- as.numeric(as.character(summary.stats.ay$INDIVIDUALS))
+summary.stats.ay$FIRST.YEAR <- as.numeric(as.character(summary.stats.ay$FIRST.YEAR))
+summary.stats.ay$LAST.YEAR <- as.numeric(as.character(summary.stats.ay$LAST.YEAR))
+summary.stats.ay$DURATION <- as.numeric(as.character(summary.stats.ay$DURATION))
+
+summary(summary.stats.ay)
+
+
+# now we can calculate the trends through the emergence dates over time
+# this is a slight tweak on what we've done above - rather than getting a single value in each year and putting a simple trend through it,
+# let's fit a model to the values for all sites, with site as a random effect
+# for this, we want to invert the slope so that this is a measure of phenological *advancement* as opposed to phenological *change*
+
+pheno.slopes.ay <- data.frame(SCI_NAME = factor(),
+                           COMMON_NAME = factor(),
+                           PHENO.SLOPE = numeric(),
+                           PHENO.SE = numeric(),
+                           PHENO.CHI = numeric(),
+                           PHENO.P = numeric())
+
+
+for (x in BMS.butterflies){
+  spec <- BMS_allyears[which(BMS_allyears$COMMON_NAME==x), ]
+  COMMON_NAME <- x
+  SCI_NAME <- as.character(spec$SCI_NAME[1])
+  print(x)
+  
+  test1 <- lmer(PEAKDAY ~ YEAR + (1|SITE), data = spec)
+  
+  PHENO.SLOPE <- -round(summary(test1)$coefficients[2,1], 2)
+  PHENO.SE <- round(summary(test1)$coefficients[2,2], 2)
+  PHENO.CHI <- round(drop1(test1, test = "Chi")[2,3], 2) 
+  PHENO.P <- round(drop1(test1, test = "Chi")[2,4], 4)
+  coef <- fixef(test1)
+  
+  png(paste0("Data/Derived/Phenology/FullRange/Butterflies/",x,".png"), width = 800, height = 800, units = "px", bg = "white")
+  
+  plot(spec$PEAKDAY ~ spec$YEAR,
+       ylim = c(0,365),
+       xlab = "YEAR", ylab = "Annual julian day of peak first-generation emergence")
+  
+  abline(coef[1],coef[2])
+  title(main = paste(x,SCI_NAME, sep = " - "))
+  if (PHENO.P == 0){
+    mtext(paste0("effect: ",PHENO.SLOPE," +/- ",PHENO.SE,"; chisq = ",PHENO.CHI,"; p < 0.0001"), line = 0)
+  } else {
+    mtext(paste0("effect: ",PHENO.SLOPE," +/- ",PHENO.SE,"; chisq = ",PHENO.CHI,"; p = ",PHENO.P), line = 0)
+  }
+  
+  dev.off()
+  
+  out <- data.frame(cbind(SCI_NAME, COMMON_NAME, PHENO.SLOPE, PHENO.SE, PHENO.CHI, PHENO.P))
+  pheno.slopes.ay <- rbind(pheno.slopes.ay, out)
+  
+}
+
+pheno.slopes.ay$PHENO.SLOPE <- as.numeric(as.character(pheno.slopes.ay$PHENO.SLOPE))
+pheno.slopes.ay$PHENO.SE <- as.numeric(as.character(pheno.slopes.ay$PHENO.SE))
+pheno.slopes.ay$PHENO.CHI <- as.numeric(as.character(pheno.slopes.ay$PHENO.CHI))
+pheno.slopes.ay$PHENO.P <- as.numeric(as.character(pheno.slopes.ay$PHENO.P))
+
+summary(pheno.slopes.ay)
 
 
 
+### now we want to replicate this process for abundance data from the same set of BMS populations
+# (we will have good abundance )
+# this data is already read in - 
+summary(BMS_allyears$MEAN.ABUND)
 
+abund.slopes.ay <- data.frame(SCI_NAME = factor(),
+                           COMMON_NAME = factor(),
+                           ABUND.EXP.SLOPE = numeric(),
+                           ABUND.SLOPE = numeric(),
+                           ABUND.SE = numeric(),
+                           ABUND.CHI = numeric(),
+                           ABUND.P = numeric())
+
+
+for (x in BMS.butterflies){
+  spec <- BMS_allyears[which(BMS_allyears$COMMON_NAME==x), ]
+  COMMON_NAME <- x
+  SCI_NAME <- as.character(spec$SCI_NAME[1])
+  print(x)
+  
+  test1 <- lmer(log(MEAN.ABUND) ~ YEAR + (1|SITE), data = spec)
+  
+  ABUND.EXP.SLOPE <- round(exp(summary(test1)$coefficients[2,1]), 4)
+  ABUND.SLOPE <- round(summary(test1)$coefficients[2,1], 4)
+  ABUND.SE <- round(summary(test1)$coefficients[2,2], 4)
+  ABUND.CHI <- round(drop1(test1, test = "Chi")[2,3], 2) 
+  ABUND.P <- round(drop1(test1, test = "Chi")[2,4], 4)
+  coef <- fixef(test1)
+  
+  png(paste0("Data/Derived/Abundance/FullRange/Butterflies/",x,".png"), width = 800, height = 800, units = "px", bg = "white")
+  
+  plot(log(spec$MEAN.ABUND) ~ spec$YEAR,
+       ylim = c(0,10),
+       xlab = "YEAR", ylab = "Log (mean no. recorded individuals per transect)")
+  
+  abline(coef[1],coef[2])
+  title(main = paste(x,SCI_NAME, sep = " - "))
+  if (ABUND.P == 0){
+    mtext(paste0("effect: ",ABUND.EXP.SLOPE,"(",ABUND.SLOPE," +/- ",ABUND.SE,"); chisq = ",ABUND.CHI,"; p < 0.0001"), line = 0)
+  } else {
+    mtext(paste0("effect: ",ABUND.EXP.SLOPE,"(",ABUND.SLOPE," +/- ",ABUND.SE,"; chisq = ",ABUND.CHI,"; p = ",ABUND.P), line = 0)
+  }
+  
+  dev.off()
+  
+  out <- data.frame(cbind(SCI_NAME, COMMON_NAME, ABUND.EXP.SLOPE, ABUND.SLOPE, ABUND.SE, ABUND.CHI, ABUND.P))
+  abund.slopes.ay <- rbind(abund.slopes.ay, out)
+  
+}
+
+abund.slopes.ay$ABUND.EXP.SLOPE <- as.numeric(as.character(abund.slopes.ay$ABUND.EXP.SLOPE))
+abund.slopes.ay$ABUND.SLOPE <- as.numeric(as.character(abund.slopes.ay$ABUND.SLOPE))
+abund.slopes.ay$ABUND.SE <- as.numeric(as.character(abund.slopes.ay$ABUND.SE))
+abund.slopes.ay$ABUND.CHI <- as.numeric(as.character(abund.slopes.ay$ABUND.CHI))
+abund.slopes.ay$ABUND.P <- as.numeric(as.character(abund.slopes.ay$ABUND.P))
+
+summary(abund.slopes.ay)
+
+
+# merge all this together
+
+BMS_out_pre.ay <- merge(pheno.slopes.ay,abund.slopes.ay)
+BMS_out.ay <- merge(summary.stats.ay,BMS_out_pre.ay)
+
+
+# and write out all versions
+write.csv(BMS_out.ay, "Data/Derived/BMS_ay.csv", row.names = F)
 
 
 

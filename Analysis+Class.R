@@ -2591,7 +2591,7 @@ drop1(model1.m.heavy, test = "Chi")
 chkres(model1.m.heavy, data.mv.heavy$PHENO.SLOPE, data.mv.heavy$TAXON)
 
 # predict data to plot lines
-newdata1m.heavy <- expand.grid(PHENO.SLOPE = seq(-3,2,0.1), TAXON = c("Butterfly","Moth"),ABUND.SLOPE = 0)
+newdata1m.heavy <- expand.grid(PHENO.SLOPE = seq(-0.6,1.7,0.1), TAXON = c("Butterfly","Moth"),ABUND.SLOPE = 0)
 newdata1m.heavy$ABUND.SLOPE <- predict(model1.m.heavy, newdata = newdata1m.heavy, type="response")
 newdata1m.heavy <- ddply(newdata1m.heavy, .(PHENO.SLOPE), numcolwise(mean))
 
@@ -3234,7 +3234,7 @@ g4.u.heavy.c <- ggplot(data.uv.heavy)+
 g4.u.heavy.c
 
 # predict data to plot lines
-newdata4.dist <- expand.grid(ABUND.SLOPE = seq(-0.1,0.15,0.01), VOLTINISM = as.factor(c(1,2)), TAXON = c("Butterfly","Moth"),DISTRIB.SLOPE = 0)
+newdata4.dist <- expand.grid(ABUND.SLOPE = seq(-0.09,0.11,0.01), VOLTINISM = as.factor(c(1,2)), TAXON = c("Butterfly","Moth"),DISTRIB.SLOPE = 0)
 newdata4.dist$DISTRIB.SLOPE <- predict(model4.dist, newdata = newdata4.dist, type="response")
 newdata4.dist <- ddply(newdata4.dist, .(ABUND.SLOPE), numcolwise(mean))
 
@@ -3429,12 +3429,12 @@ chkres(model4.NRM.m.wc, data.mv.wc[which(data.mv.wc$NORTHERLY==F), ]$ABUND.SLOPE
 
 
 # predict data to plot lines
-newdata4.nrm.c <- expand.grid(ABUND.SLOPE = seq(-0.1,0.15,0.01), TAXON = c("Butterfly","Moth"), VOLTINISM = c("1","2"), CLASS = c("HS","WC"), MARGIN.SLOPE = 0)
+newdata4.nrm.c <- expand.grid(ABUND.SLOPE = seq(-0.09,0.11,0.01), TAXON = c("Butterfly","Moth"), VOLTINISM = c("1","2"), CLASS = c("HS","WC"), MARGIN.SLOPE = 0)
 newdata4.nrm.c$MARGIN.SLOPE <- predict(model4.NRM.c, newdata = newdata4.nrm.c, type="response")
 newdata4.nrm.c <- ddply(newdata4.nrm.c, .(ABUND.SLOPE), numcolwise(mean))
 
 # predict data to plot lines
-newdata4.nrm <- expand.grid(ABUND.SLOPE = seq(-0.1,0.15,0.01), TAXON = c("Butterfly","Moth"), VOLTINISM = c("1","2"), MARGIN.SLOPE = 0)
+newdata4.nrm <- expand.grid(ABUND.SLOPE = seq(-0.09,0.11,0.01), TAXON = c("Butterfly","Moth"), VOLTINISM = c("1","2"), MARGIN.SLOPE = 0)
 newdata4.nrm$MARGIN.SLOPE <- predict(model4.NRM, newdata = newdata4.nrm, type="response")
 newdata4.nrm <- ddply(newdata4.nrm, .(ABUND.SLOPE), numcolwise(mean))
 
@@ -4875,6 +4875,31 @@ fig2d
 
 
 
+
+fig2da <- ggplot(errorsGDD)+
+  geom_density2d(data = popns_GDD, aes(x = SPRING.ONLY, y = PEAKDAY, colour = VOLTINISM),
+                 alpha = 0.5, bins = 5)+
+  geom_line(aes(y = fit, x = SPRING.ONLY, colour = VOLTINISM),
+            linetype = "solid", stat="identity",size = 1)+
+  geom_ribbon(aes(ymin = lower, ymax = upper, x = SPRING.ONLY, fill = VOLTINISM),
+              stat="identity",size = 0.6, alpha = 0.2)+
+  theme_bw()+
+  scale_colour_manual(name = "Voltinism",
+                      values = c("royalblue","goldenrod"),
+                      labels = c("Univoltine","Multivoltine"))+
+  scale_fill_manual(name = "Voltinism",
+                    values = c("royalblue","goldenrod"),
+                    labels = c("Univoltine","Multivoltine"))+
+  ggtitle(" ")+
+  ylab("Average peak day of emergence\n")+
+  xlab("Accumulated degrees (GDD5), \nMarch 1st to May 31st")+
+  theme(plot.title = element_text(hjust = 0.5))+ theme(panel.grid = element_blank())
+
+
+fig2da
+
+
+
 ### so, hot spring/summer temps do lead to early emergence
 ## what is the consequence of that for various components of abundance?
 
@@ -5004,6 +5029,32 @@ fig2a <- ggplot(errors.f1)+
 
 
 fig2a
+
+
+
+fig2aa <- ggplot(errors.f1)+
+  geom_density2d(data = popns_all_volti, aes(x = PEAKDAY, y = MEAN.ABUND, colour = VOLTINISM),
+                 alpha = 0.5, bins = 5)+
+  geom_ribbon(aes(ymin = lowere, ymax = uppere, x = PEAKDAY, fill = VOLTINISM),
+              stat="identity",size = 0.6, alpha = 0.2)+
+  geom_line(aes(y = fite, x = PEAKDAY, colour = VOLTINISM),
+            stat="identity",size = 1)+
+  theme_bw()+
+  scale_colour_manual(name = "Voltinism",
+                      values = c("royalblue","goldenrod"),
+                      labels = c("Univoltine","Multivoltine"))+
+  scale_fill_manual(name = "Voltinism",
+                    values = c("royalblue","goldenrod"),
+                    labels = c("Univoltine","Multivoltine"))+
+  ggtitle(" ")+
+  scale_y_log10(limits = c(0.02,100))+
+  ylab("Mean abundance per transect/trap \nin given year (log scale)")+
+  xlab("Peak day of emergence \n")+
+  theme(plot.title = element_text(hjust = 0.5))+ theme(panel.grid = element_blank())
+
+
+fig2aa
+
 
 
 
@@ -5174,6 +5225,24 @@ fig2c <- ggplot(errors.f6)+
 
 fig2c
 
+
+fig2ca <- ggplot(errors.f6)+
+  geom_density2d(data = popns.f6, aes(x = PEAKDAY, y = VOLTINISM.RATIO),
+                 alpha = 0.5, bins = 5, colour = "goldenrod")+
+  geom_ribbon(aes(ymin = lowere, ymax = uppere, x = PEAKDAY),
+              fill = "goldenrod", stat="identity",size = 0.6, alpha = 0.2)+
+  geom_line(aes(y = fite, x = PEAKDAY),
+            stat="identity",size = 1, colour = "goldenrod")+
+  theme_bw()+
+  ggtitle(" ")+
+  scale_y_log10(limits = c(0.02,50))+
+  ylab("Ratio of 1st to 2nd \ngeneration abundance")+
+  xlab("Peak day of emergence \n")+
+  theme(plot.title = element_text(hjust = 0.5))+ theme(panel.grid = element_blank())
+
+fig2ca
+
+
   
 # abundance in year t+1
 # first we need to generate this variable of t+1 abundance
@@ -5328,10 +5397,39 @@ fig2b <- ggplot(errors.f7)+
 fig2b
 
 
+
+
+fig2ba <- ggplot(errors.f7)+
+  geom_density2d(data = popns.f7, aes(x = PEAKDAY, y = NEXT.YEAR, colour = VOLTINISM),
+                 alpha = 0.5, bins = 5)+
+  geom_ribbon(aes(ymin = lowere, ymax = uppere, x = PEAKDAY, fill = VOLTINISM),
+              stat="identity",size = 0.6, alpha = 0.2)+
+  geom_line(aes(y = fite, x = PEAKDAY, colour = VOLTINISM),
+            stat="identity",size = 1)+
+  theme_bw()+
+  scale_fill_manual(name = "Voltinism",
+                    values = c("royalblue","goldenrod"),
+                    labels = c("Univoltine","Multivoltine"))+
+  scale_colour_manual(name = "Voltinism",
+                      values = c("royalblue","goldenrod"),
+                      labels = c("Univoltine","Multivoltine"))+
+  ggtitle(" ")+
+  scale_y_log10(limits = c(0.02,100))+
+  ylab("Mean abundance per transect/trap \nin following year (log scale)")+
+  xlab("Peak day of emergence \n")+
+  theme(plot.title = element_text(hjust = 0.5)) + theme(panel.grid = element_blank())
+
+fig2ba
+
+
+
+
+
+
 ### final figures ####
 ## we want to rearrange some components of figures into new sets for the final manuscript
 
-# Fig 1
+# Fig 2
 
 fig1a <- grid.arrange(arrangeGrob(g1.u.heavy + theme(legend.position="none") + theme(panel.grid = element_blank()) + xlab("\n"),g1.m.heavy + theme(legend.position="none") + theme(panel.grid = element_blank()) + ylab("\n") + xlab("\n"),ncol=2),
                       leg1.heavy,ncol=2,widths=c(10,2))
@@ -5346,7 +5444,7 @@ ggsave("Results/Plots/Final/Fig2update.svg", plot = fig1, device = svg, width = 
 
 
 
-# Fig 2
+# Fig 3
 
 
 fig2a <- fig2a + theme(panel.grid = element_blank())
@@ -5367,6 +5465,18 @@ fig2 <- grid.arrange(arrangeGrob(fig2d + theme(legend.position="none"), fig2c + 
 
 ggsave("Results/Plots/Final/Fig3update.svg", plot = fig2, device = svg, width = 250, height = 200, units = "mm", limitsize = F)
 
+
+
+# Fig 2 densities
+
+leg2a.final <- g_legend(fig2aa)
+
+fig2a <- grid.arrange(arrangeGrob(fig2da + theme(legend.position="none"), fig2ca + theme(legend.position="none"),
+                                 fig2aa + theme(legend.position="none"), fig2ba + theme(legend.position="none"),
+                                 ncol=2),
+                     leg2a.final, ncol=2, widths=c(10,2))
+
+ggsave("Results/Plots/Final/Fig3update_densities.svg", plot = fig2a, device = svg, width = 250, height = 200, units = "mm", limitsize = F)
 
 
 
@@ -5456,3 +5566,485 @@ model.ft.m <- lm(FULL.TREND ~ ABUND.SLOPE, data = RIS.nattrends)
 
 summary(model.ft.m)
 drop1(model.ft.m, test = "F")
+
+
+
+
+
+
+
+#### post-revision additional supplements ####
+
+# adding a couple of supplementary analyses requested by peer-reviewers
+
+## separating out obligate and functional univoltines in main model
+
+
+# use an if-else to turn voltinism into 3 categories (multivoltine, obligate univoltine, functional univoltine)
+
+data.volt.heavy$VOLT3 <- as.factor(ifelse(data.volt.heavy$VOLTINISM == 2, "Multivoltine",
+                                ifelse(data.volt.heavy$STRICT_VOLTINISM == 1, "Obligate univoltine", "Functional univoltine")))
+
+summary(data.volt.heavy$VOLT3)
+
+
+# now test the relationship using a linear model
+
+hist(data.volt.heavy$ABUND.SLOPE)
+
+model1.heavy.c3 <- lmer(ABUND.SLOPE ~ PHENO.SLOPE * VOLT3 * CLASS + (1|TAXON),
+                       data = data.volt.heavy)
+
+summary(model1.heavy.c3)
+drop1(model1.heavy.c3, test = "Chi")
+
+r.squaredGLMM(model1.heavy.c3)
+
+
+# without class
+
+hist(data.volt.heavy$ABUND.SLOPE)
+
+model1.heavy3 <- lmer(ABUND.SLOPE ~ PHENO.SLOPE * VOLT3 + (1|TAXON),
+                      data = data.volt.heavy)
+
+summary(model1.heavy3)
+drop1(model1.heavy3, test = "Chi")
+
+r.squaredGLMM(model1.heavy3)
+
+
+###
+# break this down into the various categories and get a separate slope for each
+# we already have the two multivoltine cats
+
+
+# mv hs
+hist(data.mv.hs$ABUND.SLOPE) # only 3
+
+# mv wc
+hist(data.mv.wc$ABUND.SLOPE)
+
+model1.mv.wc3 <- lmer(ABUND.SLOPE ~ PHENO.SLOPE + (1|TAXON),
+                      data = data.mv.wc)
+
+summary(model1.mv.wc3)
+drop1(model1.mv.wc3, test = "Chi")
+
+chkres(model1.mv.wc3, data.mv.wc$PHENO.SLOPE, data.mv.wc$TAXON)
+
+
+## and the multivoltine overall
+# mv
+hist(data.mv.heavy$ABUND.SLOPE)
+
+model1.mv.heavy3 <- lmer(ABUND.SLOPE ~ PHENO.SLOPE + (1|TAXON),
+                      data = data.mv.heavy)
+
+summary(model1.mv.heavy3)
+drop1(model1.mv.heavy3, test = "Chi")
+
+chkres(model1.mv.heavy3, data.mv.heavy$PHENO.SLOPE, data.mv.heavy$TAXON)
+
+
+## now separate out the obligate univoltines
+
+data.uv1 <- data.volt.heavy[which(data.volt.heavy$VOLT3 == "Obligate univoltine"), ]
+
+model1.uv1.heavy3 <- lmer(ABUND.SLOPE ~ PHENO.SLOPE + (1|TAXON),
+                         data = data.uv1)
+
+summary(model1.uv1.heavy3)
+drop1(model1.uv1.heavy3, test = "Chi")
+
+chkres(model1.uv1.heavy3, data.uv1$PHENO.SLOPE, data.uv1$TAXON)
+
+
+## and subdivide them further
+
+data.uv1.hs <- data.uv1[which(data.uv1$CLASS == "HS"), ]
+
+model1.uv1.hs3 <- lmer(ABUND.SLOPE ~ PHENO.SLOPE + (1|TAXON),
+                          data = data.uv1.hs)
+
+summary(model1.uv1.hs3)
+drop1(model1.uv1.hs3, test = "Chi")
+
+chkres(model1.uv1.hs3, data.uv1.hs$PHENO.SLOPE, data.uv1.hs$TAXON)
+
+
+
+data.uv1.wc <- data.uv1[which(data.uv1$CLASS == "WC"), ]
+
+model1.uv1.wc3 <- lmer(ABUND.SLOPE ~ PHENO.SLOPE + (1|TAXON),
+                       data = data.uv1.wc)
+
+summary(model1.uv1.wc3)
+drop1(model1.uv1.wc3, test = "Chi")
+
+chkres(model1.uv1.hs3, data.uv1.hs$PHENO.SLOPE, data.uv1.hs$TAXON)
+
+
+## now separate out the functional univoltines
+
+data.uv0 <- data.volt.heavy[which(data.volt.heavy$VOLT3 == "Functional univoltine"), ]
+
+model1.uv0.heavy3 <- lmer(ABUND.SLOPE ~ PHENO.SLOPE + (1|TAXON),
+                          data = data.uv0)
+
+summary(model1.uv0.heavy3)
+drop1(model1.uv0.heavy3, test = "Chi")
+
+chkres(model1.uv0.heavy3, data.uv0$PHENO.SLOPE, data.uv0$TAXON)
+
+
+## and subdivide them further
+
+data.uv0.hs <- data.uv0[which(data.uv0$CLASS == "HS"), ]
+
+model1.uv0.hs3 <- lm(ABUND.SLOPE ~ PHENO.SLOPE,
+                       data = data.uv0.hs)
+
+summary(model1.uv0.hs3)
+drop1(model1.uv0.hs3, test = "F")
+
+chkres(model1.uv0.hs3, data.uv0.hs$PHENO.SLOPE, data.uv0.hs$TAXON)
+
+
+
+data.uv0.wc <- data.uv0[which(data.uv0$CLASS == "WC"), ]
+
+model1.uv0.wc3 <- lmer(ABUND.SLOPE ~ PHENO.SLOPE + (1|TAXON),
+                       data = data.uv0.wc)
+
+summary(model1.uv0.wc3)
+drop1(model1.uv0.wc3, test = "Chi")
+
+chkres(model1.uv0.hs3, data.uv0.hs$PHENO.SLOPE, data.uv0.hs$TAXON)
+
+
+
+
+### repeat the whole lot using distribution
+
+# now test the relationship using a linear model
+
+hist(data.volt.heavy$DISTRIB.SLOPE)
+
+model2.heavy.c3 <- lmer(DISTRIB.SLOPE ~ PHENO.SLOPE * VOLT3 * CLASS + (1|TAXON),
+                        data = data.volt.heavy)
+
+summary(model2.heavy.c3)
+drop1(model2.heavy.c3, test = "Chi")
+
+r.squaredGLMM(model2.heavy.c3)
+
+
+# without class
+
+model2.heavy3 <- lmer(DISTRIB.SLOPE ~ PHENO.SLOPE * VOLT3 + (1|TAXON),
+                      data = data.volt.heavy)
+
+summary(model2.heavy3)
+drop1(model2.heavy3, test = "Chi")
+
+r.squaredGLMM(model2.heavy3)
+
+
+###
+# break this down into the various categories and get a separate slope for each
+# we already have the two multivoltine cats
+
+
+# mv hs
+hist(data.mv.hs$DISTRIB.SLOPE) # only 3
+
+# mv wc
+hist(data.mv.wc$DISTRIB.SLOPE)
+
+model2.mv.wc3 <- lmer(DISTRIB.SLOPE ~ PHENO.SLOPE + (1|TAXON),
+                      data = data.mv.wc)
+
+summary(model2.mv.wc3)
+drop1(model2.mv.wc3, test = "Chi")
+
+chkres(model2.mv.wc3, data.mv.wc$PHENO.SLOPE, data.mv.wc$TAXON)
+
+
+## and the multivoltine overall
+# mv
+hist(data.mv.heavy$DISTRIB.SLOPE)
+
+model2.mv.heavy3 <- lmer(DISTRIB.SLOPE ~ PHENO.SLOPE + (1|TAXON),
+                         data = data.mv.heavy)
+
+summary(model2.mv.heavy3)
+drop1(model2.mv.heavy3, test = "Chi")
+
+chkres(model2.mv.heavy3, data.mv.heavy$PHENO.SLOPE, data.mv.heavy$TAXON)
+
+
+## now separate out the obligate univoltines
+
+model2.uv1.heavy3 <- lmer(DISTRIB.SLOPE ~ PHENO.SLOPE + (1|TAXON),
+                          data = data.uv1)
+
+summary(model2.uv1.heavy3)
+drop1(model2.uv1.heavy3, test = "Chi")
+
+chkres(model2.uv1.heavy3, data.uv1$PHENO.SLOPE, data.uv1$TAXON)
+
+
+## and subdivide them further
+
+model2.uv1.hs3 <- lmer(DISTRIB.SLOPE ~ PHENO.SLOPE + (1|TAXON),
+                       data = data.uv1.hs)
+
+summary(model2.uv1.hs3)
+drop1(model2.uv1.hs3, test = "Chi")
+
+chkres(model2.uv1.hs3, data.uv1.hs$PHENO.SLOPE, data.uv1.hs$TAXON)
+
+
+
+model2.uv1.wc3 <- lmer(DISTRIB.SLOPE ~ PHENO.SLOPE + (1|TAXON),
+                       data = data.uv1.wc)
+
+summary(model2.uv1.wc3)
+drop1(model2.uv1.wc3, test = "Chi")
+
+chkres(model2.uv1.hs3, data.uv1.hs$PHENO.SLOPE, data.uv1.hs$TAXON)
+
+
+## now separate out the functional univoltines
+
+model2.uv0.heavy3 <- lmer(DISTRIB.SLOPE ~ PHENO.SLOPE + (1|TAXON),
+                          data = data.uv0)
+
+summary(model2.uv0.heavy3)
+drop1(model2.uv0.heavy3, test = "Chi")
+
+chkres(model2.uv0.heavy3, data.uv0$PHENO.SLOPE, data.uv0$TAXON)
+
+
+## and subdivide them further
+
+model2.uv0.hs3 <- lm(DISTRIB.SLOPE ~ PHENO.SLOPE,
+                     data = data.uv0.hs)
+
+summary(model2.uv0.hs3)
+drop1(model2.uv0.hs3, test = "F")
+
+chkres(model2.uv0.hs3, data.uv0.hs$PHENO.SLOPE, data.uv0.hs$TAXON)
+
+
+
+model2.uv0.wc3 <- lmer(DISTRIB.SLOPE ~ PHENO.SLOPE + (1|TAXON),
+                       data = data.uv0.wc)
+
+summary(model2.uv0.wc3)
+drop1(model2.uv0.wc3, test = "Chi")
+
+chkres(model2.uv0.hs3, data.uv0.hs$PHENO.SLOPE, data.uv0.hs$TAXON)
+
+
+
+
+
+### repeat the whole lot using NRM
+
+# now test the relationship using a linear model
+
+hist(data.volt.heavy$MARGIN.SLOPE)
+
+model3.heavy.c3 <- lmer(MARGIN.SLOPE ~ PHENO.SLOPE * VOLT3 * CLASS + (1|TAXON),
+                        data = data.volt.heavy)
+
+summary(model3.heavy.c3)
+drop1(model3.heavy.c3, test = "Chi")
+
+r.squaredGLMM(model3.heavy.c3)
+
+
+# without class
+
+model3.heavy3 <- lmer(MARGIN.SLOPE ~ PHENO.SLOPE * VOLT3 + (1|TAXON),
+                      data = data.volt.heavy)
+
+summary(model3.heavy3)
+drop1(model3.heavy3, test = "Chi")
+
+r.squaredGLMM(model3.heavy3)
+
+
+###
+# break this down into the various categories and get a separate slope for each
+# we already have the two multivoltine cats
+
+
+# mv hs
+hist(data.mv.hs$MARGIN.SLOPE) # only 3
+
+# mv wc
+hist(data.mv.wc$MARGIN.SLOPE)
+
+model3.mv.wc3 <- lmer(MARGIN.SLOPE ~ PHENO.SLOPE + (1|TAXON),
+                      data = data.mv.wc)
+
+summary(model3.mv.wc3)
+drop1(model3.mv.wc3, test = "Chi")
+
+chkres(model3.mv.wc3, data.mv.wc$PHENO.SLOPE, data.mv.wc$TAXON)
+
+
+## and the multivoltine overall
+# mv
+hist(data.mv.heavy$MARGIN.SLOPE)
+
+model3.mv.heavy3 <- lmer(MARGIN.SLOPE ~ PHENO.SLOPE + (1|TAXON),
+                         data = data.mv.heavy)
+
+summary(model3.mv.heavy3)
+drop1(model3.mv.heavy3, test = "Chi")
+
+chkres(model3.mv.heavy3, data.mv.heavy$PHENO.SLOPE, data.mv.heavy$TAXON)
+
+
+## now separate out the obligate univoltines
+
+model3.uv1.heavy3 <- lmer(MARGIN.SLOPE ~ PHENO.SLOPE + (1|TAXON),
+                          data = data.uv1)
+
+summary(model3.uv1.heavy3)
+drop1(model3.uv1.heavy3, test = "Chi")
+
+chkres(model3.uv1.heavy3, data.uv1$PHENO.SLOPE, data.uv1$TAXON)
+
+
+## and subdivide them further
+
+model3.uv1.hs3 <- lmer(MARGIN.SLOPE ~ PHENO.SLOPE + (1|TAXON),
+                       data = data.uv1.hs)
+
+summary(model3.uv1.hs3)
+drop1(model3.uv1.hs3, test = "Chi")
+
+chkres(model3.uv1.hs3, data.uv1.hs$PHENO.SLOPE, data.uv1.hs$TAXON)
+
+
+
+model3.uv1.wc3 <- lmer(MARGIN.SLOPE ~ PHENO.SLOPE + (1|TAXON),
+                       data = data.uv1.wc)
+
+summary(model3.uv1.wc3)
+drop1(model3.uv1.wc3, test = "Chi")
+
+chkres(model3.uv1.hs3, data.uv1.hs$PHENO.SLOPE, data.uv1.hs$TAXON)
+
+
+## now separate out the functional univoltines
+
+model3.uv0.heavy3 <- lmer(MARGIN.SLOPE ~ PHENO.SLOPE + (1|TAXON),
+                          data = data.uv0)
+
+summary(model3.uv0.heavy3)
+drop1(model3.uv0.heavy3, test = "Chi")
+
+chkres(model3.uv0.heavy3, data.uv0$PHENO.SLOPE, data.uv0$TAXON)
+
+
+## and subdivide them further
+
+model3.uv0.hs3 <- lm(MARGIN.SLOPE ~ PHENO.SLOPE,
+                     data = data.uv0.hs)
+
+summary(model3.uv0.hs3)
+drop1(model3.uv0.hs3, test = "F")
+
+chkres(model3.uv0.hs3, data.uv0.hs$PHENO.SLOPE, data.uv0.hs$TAXON)
+
+
+
+model3.uv0.wc3 <- lmer(MARGIN.SLOPE ~ PHENO.SLOPE + (1|TAXON),
+                       data = data.uv0.wc)
+
+summary(model3.uv0.wc3)
+drop1(model3.uv0.wc3, test = "Chi")
+
+chkres(model3.uv0.hs3, data.uv0.hs$PHENO.SLOPE, data.uv0.hs$TAXON)
+
+
+
+### now, we need to re-do model 1 (only) again, using data calculated over a longer timespan
+
+
+# read the data in and merge in the voltinism/habitat classes
+
+butterfly.allyears <- read.csv("Data/Derived/BMS_ay.csv", header = T)
+summary(butterfly.allyears)
+
+
+moth.allyears <- read.csv("Data/Derived/RIS_ay.csv", header = T)
+summary(moth.allyears)
+
+
+## merge together, labelling butterflies and moths
+butterfly.allyears$TAXON <- "Butterfly"
+moth.allyears$TAXON <- "Moth"
+
+raw.allyears <- rbind(butterfly.allyears,moth.allyears)
+
+
+
+### we also want details of species' voltinism - 
+# at this point just fairly crudely as a categorical variable (i.e. "univoltine"/"multivoltine")
+
+allyears.volt <- merge(voltinism[,-1], raw.allyears)
+
+
+allyears.volt$VOLTINISM <- as.factor(allyears.volt$VOLTINISM)
+allyears.volt$STRICT_VOLTINISM <- as.factor(allyears.volt$STRICT_VOLTINISM)
+allyears.volt$TAXON <- as.factor(allyears.volt$TAXON)
+summary(allyears.volt)
+
+
+## finally, for each of the two derived variables, let's generate a 'state' categorical variable for what the trend is
+allyears.volt$PHENO.STATE <- as.factor(ifelse(allyears.volt$PHENO.P > 0.05, "Non-significant",
+                                          ifelse(allyears.volt$PHENO.SLOPE < 0, "Significantly later emergence",
+                                                 "Significantly earlier emergence")))
+
+allyears.volt$ABUND.STATE <- as.factor(ifelse(allyears.volt$ABUND.P > 0.05, "Non-significant",
+                                          ifelse(allyears.volt$ABUND.SLOPE < 0, "Significantly declining abundance",
+                                                 "Significantly increasing abundance")))
+
+
+## now we're ready to construct the analysis
+
+
+# now test the relationship using a linear model
+
+hist(allyears.volt$ABUND.SLOPE)
+
+model1.heavy.ay.c <- lmer(ABUND.SLOPE ~ PHENO.SLOPE * VOLTINISM * CLASS + (1|TAXON),
+                       data = allyears.volt)
+
+summary(model1.heavy.ay.c)
+drop1(model1.heavy.ay.c, test = "Chi")
+
+r.squaredGLMM(model1.heavy.ay.c)
+
+# without class
+
+model1.heavy.ay <- lmer(ABUND.SLOPE ~ PHENO.SLOPE * VOLTINISM + (1|TAXON),
+                     data = allyears.volt)
+
+summary(model1.heavy.ay)
+drop1(model1.heavy.ay, test = "Chi")
+
+r.squaredGLMM(model1.heavy.ay)
+
+
+
+
+
+
